@@ -5,19 +5,33 @@ class MoviesController < ApplicationController
   def index
     @all_ratings = Movie.all_ratings
 
-    # 1. Safe parsing for Hash / ActionController::Parameters / Array
-    if params[:ratings].respond_to?(:keys)
-      @ratings_to_show = params[:ratings].keys
-    elsif params[:ratings].is_a?(Array)
-      @ratings_to_show = params[:ratings]
+    # 1. Determine ratings from params or session
+    if params[:ratings].present?
+      @ratings_to_show = params[:ratings].respond_to?(:keys) ? params[:ratings].keys : params[:ratings]
+      session[:ratings] = params[:ratings]
+    elsif session[:ratings].present?
+      @ratings_to_show = session[:ratings].respond_to?(:keys) ? session[:ratings].keys : session[:ratings]
     else
       @ratings_to_show = @all_ratings
     end
 
-    # 2. Parse sort option
-    @sort_by = params[:sort_by]
+    # 2. Determine sort_by from params or session
+    if params[:sort_by].present?
+      @sort_by = params[:sort_by]
+      session[:sort_by] = params[:sort_by]
+    elsif session[:sort_by].present?
+      @sort_by = session[:sort_by]
+    else
+      @sort_by = nil
+    end
 
-    # 3. Query Model
+    # 3. If params were missing but present in session, REDIRECT to keep the URI RESTful
+    if (params[:ratings].nil? && session[:ratings].present?) || (params[:sort_by].nil? && session[:sort_by].present?)
+      flash.keep
+      redirect_to movies_path(ratings: session[:ratings], sort_by: session[:sort_by]) and return
+    end
+
+    # 4. Fetch movies from model
     @movies = Movie.with_ratings(@ratings_to_show, @sort_by)
   end
 
