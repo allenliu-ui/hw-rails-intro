@@ -4,8 +4,11 @@ class Movie < ApplicationRecord
   end
 
   def self.with_ratings(ratings_list, sort_by = nil)
+    # If no ratings are passed, return no movies
+    return Movie.none if ratings_list.blank?
+
     # 1. Filter by ratings
-    movies = ratings_list.present? ? where(rating: ratings_list) : all
+    movies = where(rating: ratings_list)
 
     # 2. Apply sorting if a valid column name is provided
     allowed_sorts = ['title', 'release_date']

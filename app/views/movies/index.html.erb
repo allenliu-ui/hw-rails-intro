@@ -1,7 +1,6 @@
-<%= form_tag movies_path, method: :get, id: 'ratings_form', local: true do %>
-  <%# Keep current sort order when clicking Refresh %>
-  <%= hidden_field_tag :sort_by, @sort_by %>
+<h2>All Movies</h2>
 
+<%= form_tag movies_path, method: :get, id: 'ratings_form', local: true do %>
   Include:
   <% @all_ratings.each do |rating| %>
     <div class="form-check form-check-inline">
@@ -10,8 +9,7 @@
     </div>
   <% end %>
 
-  <%# Sort Dropdown %>
-  <div>
+  <div class="my-2">
     <label class="form-label me-2" for="sort_by">Sort by:</label>
     <%= select_tag :sort_by,
                    options_for_select([["Title", "title"],
@@ -21,5 +19,26 @@
                    class: "form-select d-inline w-auto" %>
   </div>
 
-  <%= submit_tag 'Refresh', id: 'ratings_submit', class: 'btn btn-primary' %>
+  <%= submit_tag 'Refresh', id: 'ratings_submit', class: 'btn btn-primary mb-3' %>
 <% end %>
+
+<table class="table table-striped col-md-12" id="movies">
+  <thead>
+    <tr>
+      <th>Movie Title</th>
+      <th>Rating</th>
+      <th>Release Date</th>
+      <th>More Info</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @movies.each do |movie| %>
+      <tr>
+        <td><%= movie.title %></td>
+        <td><%= movie.rating %></td>
+        <td><%= movie.release_date %></td>
+        <td><%= link_to "More about #{movie.title}", movie_path(movie) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

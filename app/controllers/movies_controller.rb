@@ -5,11 +5,13 @@ class MoviesController < ApplicationController
   def index
     @all_ratings = Movie.all_ratings
 
-    # 1. Parse ratings
-    if params[:ratings].present?
-    @ratings_to_show = params[:ratings].is_a?(Hash) ? params[:ratings].keys : params[:ratings]
+    # 1. Safe parsing for Hash / ActionController::Parameters / Array
+    if params[:ratings].respond_to?(:keys)
+      @ratings_to_show = params[:ratings].keys
+    elsif params[:ratings].is_a?(Array)
+      @ratings_to_show = params[:ratings]
     else
-    @ratings_to_show = @all_ratings
+      @ratings_to_show = @all_ratings
     end
 
     # 2. Parse sort option
