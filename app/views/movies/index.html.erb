@@ -1,4 +1,4 @@
-<h2>All Movies</h2>
+<h2>Movies</h2>
 
 <%= form_tag movies_path, method: :get, id: 'ratings_form', local: true do %>
   Include:
@@ -9,36 +9,29 @@
     </div>
   <% end %>
 
-  <div class="my-2">
-    <label class="form-label me-2" for="sort_by">Sort by:</label>
+  <div>
+    <label for="sort_by">Sort by:</label>
     <%= select_tag :sort_by,
                    options_for_select([["Title", "title"],
                                        ["Release date", "release_date"]],
                                        @sort_by),
-                   id:    "sort_by",
-                   class: "form-select d-inline w-auto" %>
+                   id:    "sort_by" %>
   </div>
 
-  <%= submit_tag 'Refresh', id: 'ratings_submit', class: 'btn btn-primary mb-3' %>
+  <%= submit_tag 'Refresh', id: 'ratings_submit' %>
 <% end %>
 
-<table class="table table-striped col-md-12" id="movies">
-  <thead>
-    <tr>
-      <th class="<%= 'hilite bg-warning' if @sort_by == 'title' %>">Movie Title</th>
-      <th>Rating</th>
-      <th class="<%= 'hilite bg-warning' if @sort_by == 'release_date' %>">Release Date</th>
-      <th>More Info</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @movies.each do |movie| %>
-      <tr>
-        <td><%= movie.title %></td>
-        <td><%= movie.rating %></td>
-        <td><%= movie.release_date.try(:strftime, '%Y-%m-%d') || movie.release_date %></td>
-        <td><%= link_to "More about #{movie.title}", movie_path(movie) %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+<br>
+
+<div id="movies">
+  <% @movies.each do |movie| %>
+    <div>
+      <p><strong>Title:</strong> <%= movie.title %></p>
+      <p><strong>Rating:</strong> <%= movie.rating %></p>
+      <p><strong>Description:</strong> <%= movie.description %></p>
+      <p><strong>Release date:</strong> <%= movie.release_date %></p>
+      <p><%= link_to "Show this movie", movie_path(movie) %></p>
+      <br>
+    </div>
+  <% end %>
+</div>
