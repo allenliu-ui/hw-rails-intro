@@ -9,6 +9,7 @@
 #   end
 
 # Seed the RottenPotatoes DB with some movies.
+# Seed the RottenPotatoes DB with some movies.
 movies = [{ title: 'Aladdin', rating: 'G', release_date: '25-Nov-1992' },
           { title: 'The Terminator', rating: 'R', release_date: '26-Oct-1984' },
           { title: 'When Harry Met Sally', rating: 'R', release_date: '21-Jul-1989' },
@@ -21,5 +22,8 @@ movies = [{ title: 'Aladdin', rating: 'G', release_date: '25-Nov-1992' },
           { title: 'Chicken Run', rating: 'G', release_date: '21-Jun-2000' }]
 
 movies.each do |movie|
-  Movie.create!(movie)
+  Movie.find_or_create_by!(title: movie[:title]) do |m|
+    m.rating = movie[:rating]
+    m.release_date = movie[:release_date]
+  end
 end
