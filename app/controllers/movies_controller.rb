@@ -3,7 +3,20 @@ class MoviesController < ApplicationController
 
   # GET /movies or /movies.json
   def index
-    @movies = Movie.all
+    @all_ratings = Movie.all_ratings
+
+    # 1. Parse ratings
+    if params[:ratings].present?
+    @ratings_to_show = params[:ratings].is_a?(Hash) ? params[:ratings].keys : params[:ratings]
+    else
+    @ratings_to_show = @all_ratings
+    end
+
+    # 2. Parse sort option
+    @sort_by = params[:sort_by]
+
+    # 3. Query Model
+    @movies = Movie.with_ratings(@ratings_to_show, @sort_by)
   end
 
   # GET /movies/1 or /movies/1.json
