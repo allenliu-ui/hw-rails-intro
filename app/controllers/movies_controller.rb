@@ -1,11 +1,20 @@
 class MoviesController < ApplicationController
   before_action :set_movie, only: %i[ show edit update destroy ]
 
-  # GET /movies or /movies.json
   def index
     @all_ratings = Movie.all_ratings
 
-    # 1. Determine ratings from params or session
+    # 1. Determine if incoming request has explicit ratings or sort params
+    user_filtered = params[:ratings].present? || params.key?(:ratings)
+    user_sorted   = params[:sort_by].present?
+
+    # 2. Redirect logic: redirect ONLY if params are completely missing but session has saved values
+    if !user_filtered && !user_sorted && (session[:ratings].present? || session[:sort_by].present?)
+      flash.keep
+      redirect_to movies_path(ratings: session[:ratings], sort_by: session[:sort_by]) and return
+    end
+
+    # 3. Extract ratings
     if params[:ratings].present?
       @ratings_to_show = params[:ratings].respond_to?(:keys) ? params[:ratings].keys : params[:ratings]
       session[:ratings] = params[:ratings]
@@ -15,7 +24,7 @@ class MoviesController < ApplicationController
       @ratings_to_show = @all_ratings
     end
 
-    # 2. Determine sort_by from params or session
+    # 4. Extract sorting
     if params[:sort_by].present?
       @sort_by = params[:sort_by]
       session[:sort_by] = params[:sort_by]
@@ -25,13 +34,7 @@ class MoviesController < ApplicationController
       @sort_by = nil
     end
 
-    # 3. If params were missing but present in session, REDIRECT to keep the URI RESTful
-    if (params[:ratings].nil? && session[:ratings].present?) || (params[:sort_by].nil? && session[:sort_by].present?)
-      flash.keep
-      redirect_to movies_path(ratings: session[:ratings], sort_by: session[:sort_by]) and return
-    end
-
-    # 4. Fetch movies from model
+    # 5. Query Model
     @movies = Movie.with_ratings(@ratings_to_show, @sort_by)
   end
 
